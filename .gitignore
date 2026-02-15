@@ -1,0 +1,73 @@
+# Compiled class files
+*.class
+
+# Log files
+*.log
+
+# Package Files
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Maven/Backend
+backend/target/
+# Maven wrapper files - SHOULD be committed (allows running without Maven installed)
+!backend/.mvn/wrapper/maven-wrapper.jar
+!backend/.mvn/wrapper/maven-wrapper.properties
+!backend/mvnw
+!backend/mvnw.cmd
+
+# IDE
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+*.swp
+*.swo
+*~
+
+# Node/Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/build/
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+# Note: package-lock.json SHOULD be committed (ensures consistent installs)
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Application
+uploads/
+*.env
+application-local.yml
+# application.yml contains sensitive data (DB password, JWT secret)
+backend/src/main/resources/application.yml
+# Local database setup scripts with passwords
+**/*postgres*.bat
+**/database/*.bat
+
+# Database
+*.db
+*.sqlite
+
+# Screenshots (add them when submitting)
+# screenshots/
+
+# Other common exclusions
+*.pid
+*.seed
+*.pid.lock
+.npm
+.eslintcache
+.prettierignore
+coverage/
