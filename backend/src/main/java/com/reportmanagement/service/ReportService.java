@@ -51,8 +51,11 @@ public class ReportService {
      */
     public List<ReportResponse> getAllReports(Authentication authentication) {
         User user = getAuthenticatedUser(authentication);
-        List<Report> reports = reportRepository.findByUserIdOrderByCreatedAtDesc(user.getId());
+        List<Report> reports = isAdmin(user)
+            ? reportRepository.findAll()
+            : reportRepository.findByUserIdOrderByCreatedAtDesc(user.getId());
         return reports.stream()
+            .sorted((r1, r2) -> r2.getCreatedAt().compareTo(r1.getCreatedAt()))
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
@@ -68,7 +71,7 @@ public class ReportService {
      */
     public ReportResponse getReportById(Long id, Authentication authentication) {
         User user = getAuthenticatedUser(authentication);
-        Report report = findReportAndValidateOwnership(id, user.getId());
+        Report report = findReportAndValidateOwnership(id, user);
         return mapToResponse(report);
     }
 
@@ -139,7 +142,7 @@ public class ReportService {
             Authentication authentication
     ) {
         User user = getAuthenticatedUser(authentication);
-        Report report = findReportAndValidateOwnership(id, user.getId());
+        Report report = findReportAndValidateOwnership(id, user);
 
         // Validate status transition
         ReportStatus currentStatus = report.getStatus();
@@ -173,7 +176,7 @@ public class ReportService {
     @Transactional
     public void deleteReport(Long id, Authentication authentication) {
         User user = getAuthenticatedUser(authentication);
-        Report report = findReportAndValidateOwnership(id, user.getId());
+        Report report = findReportAndValidateOwnership(id, user);
 
         // Delete file from filesystem
         try {
@@ -200,16 +203,21 @@ public class ReportService {
     /**
      * Find report and validate ownership
      */
-    private Report findReportAndValidateOwnership(Long reportId, Long userId) {
+    private Report findReportAndValidateOwnership(Long reportId, User user) {
         Report report = reportRepository.findById(reportId)
                 .orElseThrow(() -> new ResourceNotFoundException("Report", reportId));
 
-        if (!report.getUser().getId().equals(userId)) {
+        if (!isAdmin(user) && !report.getUser().getId().equals(user.getId())) {
             throw new UnauthorizedException("You don't have permission to access this report");
         }
 
         return report;
     }
+
+    private boolean isAdmin(User user) {
+        return user.getRole() != null && "ADMIN".equalsIgnoreCase(user.getRole());
+    }
+
 
     /**
      * Map Report entity to ReportResponse DTO
